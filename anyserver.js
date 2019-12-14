@@ -8,6 +8,7 @@ const port = process.env.PORT || 8081;
 app.use(express.static(__dirname + '/public'));
 
 function onConnection(socket){
+  console.log("Got message" + data);
   socket.on('message', (data) => socket.broadcast.emit('message', data));
 }
 
