@@ -3,6 +3,7 @@
 
 </head>
 <body>
+  <div id="toolbar"></div>
   <div id="card_container"></div>
   <!-- ... other HTML ... -->
 
@@ -14,5 +15,26 @@
   <!-- Load our React component. -->
   <script src="js/card.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+  <script type="text/javascript">
+    var socket = io('http://172.105.95.145:8081');
+
+    socket.on('login', (data) => {
+      // Process data and create board
+      // console.log(data);
+    });
+
+    socket.on('message', (data) => {
+      // Process some sort of update
+      //
+      console.log(data);
+    });
+
+    function emitUpdate(data) {
+      // Update clients when I change something
+      //
+      //
+      socket.emit('message', data);
+    }
+  </script>
 </body>
 </html>
