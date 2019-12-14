@@ -15,7 +15,10 @@ class Card extends React.Component {
 
     return e(
       'button',
-      { onClick: () => this.setState({ liked: true }); emitUpdate('I like it') },
+      { onClick: () => {
+        this.setState({ liked: true });
+        emitUpdate('I like it');
+      } },
       'Like'
     );
   }
