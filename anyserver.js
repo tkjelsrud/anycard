@@ -14,6 +14,10 @@ function onConnection(socket){
   socket.on('message', (data) => socket.broadcast.emit('message', data));
 }
 
+app.get('/n', (req, res) => {
+    res.send('Hello shitface' + global.cnt);
+});
+
 io.on('connection', onConnection);
 
 http.listen(port, () => console.log('listening on port ' + port));
