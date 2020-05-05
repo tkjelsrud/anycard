@@ -3,9 +3,17 @@
 
 </head>
 <body>
-  <div id="toolbar"></div>
+  <div id="toolbar"><a href="#" onclick="void(addCard());">Add card</a></div>
   <div id="card_container"></div>
   <!-- ... other HTML ... -->
+
+  <!-- IDEAS
+
+  colorize icons pr participant using
+
+  filter: contrast(100) saturate(1000) hue-rotate(270deg)
+
+  -->
 
   <!-- Load React. -->
   <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
@@ -27,7 +35,8 @@
     socket.on('message', (data) => {
       // Process some sort of update
       //
-      console.log(data);
+      //console.log(data);
+      alert(data);
     });
 
     function emitUpdate(data) {
@@ -35,6 +44,11 @@
       //
       //
       socket.emit('message', data);
+    }
+
+    function addCard() {
+      const domContainer = document.querySelector('#card_container');
+      ReactDOM.render(e(Card), domContainer);
     }
   </script>
 </body>
