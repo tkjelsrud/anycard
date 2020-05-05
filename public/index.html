@@ -1,6 +1,12 @@
 <html>
 <head>
-
+  <style>
+    .card {
+      float: left;
+      background-color: yellow;
+      border: 1px solid grey;
+    }
+  </style>
 </head>
 <body>
   <div id="toolbar"><a href="#" onclick="void(addCard());">Add card</a></div>
@@ -21,8 +27,8 @@
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
 
   <!-- Load our React component. -->
-  <script src="js/card.js"></script>
-  <script src="js/dice.js"></script>
+  <!--script src="js/card.js"></script>
+  <script src="js/dice.js"></script -->
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script type="text/javascript">
     var socket = io('http://172.105.95.145:8081');
@@ -47,8 +53,10 @@
     }
 
     function addCard() {
-      const domContainer = document.querySelector('#card_container');
-      ReactDOM.render(e(Card), domContainer);
+      var node = document.createElement("div");
+      node.className = "card";
+      node.id = Math.random();
+      document.querySelector('#card_container').appendChild(node);
     }
   </script>
 </body>
