@@ -14,7 +14,18 @@ function onConnection(socket){
   socket.on('message', (data) => socket.broadcast.emit('message', data));
 }
 
+io.on("new", function(data) {
+    //
+    console.log("NEW CARD");
+    //emitsForSomeMessage.push(data);
+    socket.on('message', (data) => socket.broadcast.emit('message', data));
+});
+
 app.get('/n', (req, res) => {
+    res.send('Hello shitface' + global.cnt);
+});
+
+app.post('/n', (req, res) => {
     res.send('Hello shitface' + global.cnt);
 });
 

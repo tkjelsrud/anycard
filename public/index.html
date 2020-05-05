@@ -3,6 +3,8 @@
   <style>
     .card {
       float: left;
+      width: 100px;
+      height: 100px;
       background-color: yellow;
       border: 1px solid grey;
     }
@@ -53,10 +55,15 @@
     }
 
     function addCard() {
+      // I don't add a card myself, the server tells me a new card appeared
+      //
+      socket.emit('new', new Array(1,2,3,4));
+      alert("posted some shit");
+      /*
       var node = document.createElement("div");
       node.className = "card";
       node.id = Math.random();
-      document.querySelector('#card_container').appendChild(node);
+      document.querySelector('#card_container').appendChild(node);*/
     }
   </script>
 </body>
