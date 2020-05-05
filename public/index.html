@@ -1,18 +1,58 @@
 <html>
 <head>
   <style>
-    .card {
+    body {
+      margin: 0;
+      background-color: #F0F3BD;
+      font-family: Verdana;
+    }
+    .toolbar {
       float: left;
-      width: 100px;
-      height: 100px;
-      background-color: yellow;
+      background-color: #F0E6EF;
+      padding: 8px;
+      width: 100%;
+      border-bottom: 1px solid grey;
+    }
+    .page {
+      float: left;
+      background-color: #F0F3BD;
+      width: 100%;
+    }
+    .card {
+      position: absolute;
+      width: 130px;
+      height: 120px;
+      display: block;
+      background-color: #FCBF49;
       border: 1px solid grey;
+      box-shadow: 4px 4px 4px #CCCCCC;
+      vertical-align: middle;
+    }
+    .card .head {
+      float: left;
+      background-color: #F0E6EF;
+      height: 30px;
+      width: 100%;
+    }
+    .card .text {
+      float: left;
+      height: 70%;
+      width: 94%;
+      padding: 4px;
+      font-size: 12px;
+    }
+
+    .icon {
+      float: left;
+
+    }
+    .icon img {
+      width: 48px;
+      height: 48px;
     }
   </style>
 </head>
 <body>
-  <div id="toolbar"><a href="#" onclick="void(addCard());">Add card</a></div>
-  <div id="card_container"></div>
   <!-- ... other HTML ... -->
 
   <!-- IDEAS
@@ -27,44 +67,121 @@
   <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
   <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-
+  <script src="js/util.js"></script>
   <!-- Load our React component. -->
   <!--script src="js/card.js"></script>
   <script src="js/dice.js"></script -->
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script type="text/javascript">
-    var socket = io('http://172.105.95.145:8081');
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    //var socket = io('http://172.105.95.145:8081');
+    //var io = require('socket.io-client');
+    var socket = io('http://localhost:8081');
 
-    socket.on('login', (data) => {
+    function login() {
       // Process data and create board
       // console.log(data);
-    });
+      uuid = 0;
+      if(getCookie("uuid")) {
+        uuid = getCookie("uuid");
+      }
+      socket.emit('message', JSON.stringify({type:'LOGIN', uuid: uuid}));
+    }
+
+    function createColor(index) { 
+      c = new Array("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51");
+      if(index >= c.length)
+        index = index & c.length;
+
+      return c[index];
+    }
+
+    function createIcon(index) {
+      img = document.createElement("img");
+      img.src = "img/food" + index + ".png";
+
+      return img;
+    }
+
+    function createCard(card) {
+      div = document.createElement("div");
+      div.id = card.id;
+      div.className = "card";
+      div.contentEditable = "false";
+
+
+      divH = document.createElement("div");
+      divH.id = card.id + "h";
+      divH.className = "head";
+      divH.innerHtml = "&nbsp;";
+      divH.contentEditable = "false";
+
+      divT = document.createElement("div");
+      divT.className = "text";
+      divT.innerHtml = "&nbsp;";
+      divT.contentEditable = "true";
+
+      div.appendChild(divH);
+      div.appendChild(divT);
+
+      return div;
+    }
 
     socket.on('message', (data) => {
-      // Process some sort of update
-      //
-      //console.log(data);
-      alert(data);
+      msg = JSON.parse(data);
+      console.log(msg);
+
+      switch(msg.type) {
+        case "NEWCARD":
+          page = document.getElementsByClassName("page")[0];
+          page.appendChild(createCard(msg.card));
+
+          card = document.getElementById(msg.card.id);
+          dragElement(card);
+
+          break;
+
+        case "LOGIN":
+          alert("logged in");
+          break;
+      }
     });
 
-    function emitUpdate(data) {
-      // Update clients when I change something
-      //
-      //
-      socket.emit('message', data);
+    function cardMoved(id) {
+      card = document.getElementById(id);
+      const msg = {type:'MOVE', cardId: id, x: parseInt(card.style.left), y: parseInt(card.style.top)};
+
+      socket.emit('message', JSON.stringify(msg));
     }
 
     function addCard() {
       // I don't add a card myself, the server tells me a new card appeared
       //
-      socket.emit('new', new Array(1,2,3,4));
-      alert("posted some shit");
+      const msg = {type:'NEWCARD', boardId: 0};
+
+      socket.emit('message', JSON.stringify(msg));
       /*
       var node = document.createElement("div");
       node.className = "card";
       node.id = Math.random();
       document.querySelector('#card_container').appendChild(node);*/
     }
+    function changeIcon(idx, cdx) {
+      icons = document.getElementsByClassName('icon')[0];
+      icons.innerHTML = "";
+      icons.style.backgroundColor = createColor(cdx);
+      icons.appendChild(createIcon(idx));
+    }
   </script>
+
+  <div class="toolbar">bid <span id="bid">0</span> | <a href="#" onclick="void(addCard());">Add card</a></div>
+  <div class="page">&nbsp;</div>
+  <div id="hmm">
+    <div class="icon">&nbsp;</div>
+  </div>
 </body>
 </html>
