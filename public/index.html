@@ -93,9 +93,9 @@
       var parts = value.split("; " + name + "=");
       if (parts.length == 2) return parts.pop().split(";").shift();
     }
-    //var socket = io('http://172.105.95.145:8081');
+    var socket = io('http://172.105.95.145:8081');
     //var io = require('socket.io-client');
-    var socket = io('http://localhost:8081');
+    //var socket = io('http://localhost:8081');
 
     function login(uuid, bid) {
       // Process data and create board
