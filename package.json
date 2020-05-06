@@ -1,0 +1,24 @@
+{
+  "name": "anycard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "anyserver.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkjelsrud/anycard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tkjelsrud/anycard/issues"
+  },
+  "homepage": "https://github.com/tkjelsrud/anycard#readme"
+}
