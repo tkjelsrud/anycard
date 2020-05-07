@@ -107,17 +107,25 @@ function onConnection(socket){
       case "MOVE":
         // Should probably check out of bounds values
         card = getCard(msg.bid, msg.id);
-        card.x = msg.x;
-        card.y = msg.y;
-
-        //TODO: Need to broadcast to board only
-        socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "MOVE", card: card}));
+        if(card) {
+          card.x = (msg.x >= 0 ? msg.x : 0);
+          card.y = (msg.y >= 30 ? msg.y : 0);
+          socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "MOVE", card: card}));
+        }
+        else {
+          console.warn("MOVE - Card not found, bid:" + msg.bid + " cid:" + msg.id);
+        }
         break;
 
       case "TEXT":
         card = getCard(msg.bid, msg.id);
-        card.text = msg.text;
-        socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "TEXT", card: card}));
+        if(card) {
+          card.text = msg.text;
+          socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "TEXT", card: card}));
+        }
+        else {
+          console.warn("TEXT - Card not found, bid:" + msg.bid + " cid:" + msg.id);
+        }
         break;
     }
   });
