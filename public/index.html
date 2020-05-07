@@ -51,16 +51,58 @@
       height: 30px;
       width: 100%;
     }
-    .card .head img {
-      height: 32px;
-      width: 32px;
-    }
     .card .text {
       float: left;
       height: 70%;
       width: 94%;
       padding: 4px;
       font-size: 12px;
+    }
+    .card .options {
+      float: left;
+      width: 94%;
+      padding: 4px;
+      font-size: 10px;
+      color: #AAA;
+    }
+    .vadd {
+      float: left;
+      text-align: center;
+      background-color: green;
+      width: 12px;
+      height: 12px;
+      margin: 2px;
+    }
+    .vrem {
+      float: left;
+      text-align: center;
+      background-color: red;
+      width: 12px;
+      height: 12px;
+      margin: 2px;
+    }
+    .card .tags {
+      position: relative;
+      display: block;
+      left: 130px;
+      top: -130px;
+      width: 32px;
+    }
+    .card .tags div {
+      float: left;
+      font-size: 12px;
+      color: #333;
+      height: 20px;
+      width: 30px;
+      box-shadow: 1px 1px 2px 1px #bbb;
+    }
+    .ics {
+      width: 16px;
+      height: 16px;
+    }
+    .icm {
+      height: 32px;
+      width: 32px;
     }
 
     .icon {
@@ -97,11 +139,6 @@
     var user = {uuid: 0, bid: 0, color: 1, icon: 1, unloaded: true};
     var board = {unloaded: true};
 
-    function getCookie(name) {
-      var value = "; " + document.cookie;
-      var parts = value.split("; " + name + "=");
-      if (parts.length == 2) return parts.pop().split(";").shift();
-    }
     //var socket = io('http://172.105.95.145:8081');
     //var io = require('socket.io-client');
     var socket = io('http://localhost:8081');
@@ -121,9 +158,10 @@
       return c[index];
     }
 
-    function createIcon(index) {
+    function createIcon(index, classes="") {
       img = document.createElement("img");
       img.src = "img/food" + index + ".png";
+      img.className = classes;
 
       return img;
     }
@@ -141,7 +179,7 @@
       divH.contentEditable = "false";
       divH.style.backgroundColor = createColor(card.color);
 
-      img = createIcon(card.icon);
+      img = createIcon(card.icon, "icm");
       divH.appendChild(img);
 
       divT = document.createElement("div");
@@ -150,8 +188,19 @@
       divT.contentEditable = "true";
       divT.onblur = function() { cardText(event); };
 
+      divO = document.createElement("div");
+      divO.className = "options";
+      //divO.innerHTML = "<img class=\"ics\" src=\"img/star0.png\" /><img class=\"ics\" src=\"img/star0.png\" /><img class=\"ics\" src=\"img/star0.png\" />";
+      divO.innerHTML = "<div style=\"float:left\">Vote</div><div class=\"vadd\" onClick=\"addVote(" + card.id + ",1);\">+</div>  <div class=\"vrem\" onClick=\"addVote(" + card.id + ",-1);\">-</div>"
+
+      divV = document.createElement("div");
+      divV.className = "tags";
+      divV.innerHTML = "<img class=\"ics\" src=\"img/food0.png\" /><img class=\"ics\" src=\"img/star0.png\" /><img class=\"ics\" src=\"img/star0.png\" />";
+
       div.appendChild(divH);
       div.appendChild(divT);
+      div.appendChild(divO);
+      div.appendChild(divV);
 
       return div;
     }
@@ -172,6 +221,7 @@
           card.style.top = msg.card.y + "px";
 
           dragElement(card);
+          drawVotes(msg.card);
 
           break;
 
@@ -188,16 +238,20 @@
           card.children[1].innerText = msg.card.text;
           break;
 
+        case "VOTE":
+          console.log("Trying to vote " + msg.card.id);
+          drawVotes(msg.card);
+          break;
+
         case "LOGIN":
           user = msg.user;
           board = msg.board;
 
-          console.log(user);
+          setCookie("uuid", user.id);
           ava = document.getElementById("avatar");
           ava.style.backgroundColor = createColor(user.color);
           img = createIcon(user.icon);
           ava.appendChild(img);
-
           break;
 
         case "BOARD":
@@ -246,6 +300,28 @@
       node.id = Math.random();
       document.querySelector('#card_container').appendChild(node);*/
     }
+
+    function addVote(id, num) {
+      const msg = {type:'VOTE', bid: user.bid, id: id, owner: user.uuid, num: num};
+
+      socket.emit('message', JSON.stringify(msg));
+    }
+
+    function drawVotes(card) {
+      cH = document.getElementById(card.id);
+      vH = cH.children[3];
+      vH.innerHTML = "";
+      console.log(card);
+      for(var k in card.votes) {
+        vt = card.votes[k];
+        xH = document.createElement("div");
+        xH.style.backgroundColor = createColor(vt.color);
+        xH.innerHTML = "<span style=\"background-color:#DDD\">" + vt.num + "</span>";
+        xH.appendChild(createIcon(vt.icon, "ics"));
+        vH.appendChild(xH);
+      }
+    }
+
     function changeIcon(idx, cdx) {
       icons = document.getElementsByClassName('icon')[0];
       icons.innerHTML = "";

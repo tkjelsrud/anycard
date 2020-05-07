@@ -95,7 +95,7 @@ function onConnection(socket){
       case "NEWCARD":
         board = getOrCreateBoard(msg.bid);
         board.nextCardId++;
-        card = {id: board.nextCardId, bid: msg.bid, text: "Text here...", owner: msg.owner, x: 200, y: 200, icon: msg.icon, color: msg.color};
+        card = {id: board.nextCardId, bid: msg.bid, text: "Text here...", owner: msg.owner, x: 200, y: 200, icon: msg.icon, color: msg.color, votes: {}};
         board.cards.push(card);
         //console.log(global.boards);
         socket.emit("message", JSON.stringify({type: "NEWCARD", card: card}));
@@ -127,6 +127,17 @@ function onConnection(socket){
           console.warn("TEXT - Card not found, bid:" + msg.bid + " cid:" + msg.id);
         }
         break;
+
+      case "VOTE":
+        card = getCard(msg.bid, msg.id);
+        if(user.uuid in card.votes) {
+          card.votes[user.uuid].num += msg.num;
+        }
+        else {
+          card.votes[user.uuid] = {icon: user.icon, color: user.color, num: msg.num};
+        }
+        socket.emit("message", JSON.stringify({type: "VOTE", card: card}));
+        socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "VOTE", card: card}));
     }
   });
 }
