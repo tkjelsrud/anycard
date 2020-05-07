@@ -23,10 +23,11 @@ function createUuid() {
 }
 
 function getOrCreateBoard(bid) {
+  //console.log(global.boards);
   if(bid in global.boards) {
     return global.boards[bid];
   }
-  global.boards[bid] = {bid: bid, name: "Unnamed board", layout: 0, nextCardId: 0, cards: []}
+  global.boards[bid] = {bid: bid, name: "Unnamed board", layout: "", nextCardId: 0, cards: []}
   return global.boards[bid];
 }
 
@@ -65,8 +66,9 @@ function onConnection(socket){
           user = {bid: msg.bid, uuid: uuid, color: Math.floor(Math.random() * 9), icon: Math.floor(Math.random() * 25)};
           global.users[uuid] = user;
         }
-
+        //console.log(user);
         board = getOrCreateBoard(user.bid);
+
         socket.join(user.bid);
 
         socket.emit("message", JSON.stringify({type: "LOGIN", user: user, board: board}));
@@ -85,10 +87,13 @@ function onConnection(socket){
         // Join or create board
         //uid = ("uuid" in msg ? msg.uuid : createUuid());
         //user.bid = uid;
-        user.bid = msg.board.id;
-        board = getOrCreateBoard(msg.board.id);
+        user.bid = msg.board.bid;
+        board = getOrCreateBoard(msg.board.bid);
         board.name = msg.board.name;
         board.layout = msg.board.layout;
+
+        //global.boards[board.bid] = board; // Needed?
+
         socket.emit("message", JSON.stringify({type: "BOARD", board: board}));
         break;
 
@@ -138,6 +143,15 @@ function onConnection(socket){
         }
         socket.emit("message", JSON.stringify({type: "VOTE", card: card}));
         socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "VOTE", card: card}));
+        break;
+
+      case "CLEAN":
+        board = getOrCreateBoard(msg.bid);
+        board.cards = new Array();
+
+        socket.emit("message", JSON.stringify({type: "CLEAN"}));
+        socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "CLEAN"}));
+        break;
     }
   });
 }

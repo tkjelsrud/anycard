@@ -7,35 +7,83 @@
       font-family: Verdana;
     }
     .toolbar {
-      float: left;
       background-color: #F0E6EF;
       padding: 2px;
       width: 100%;
+      height: 32px;
       border-bottom: 1px solid grey;
+    }
+    .toolbar > div {
+      font-size: 12px;
+      color: #333;
+      width: 100px;
+      height: 32px;
+      top: 0px;
+      vertical-align: middle;
+    }
+    #settings {
+      float:right;
+      position: relative;
+      z-index: 3;
+      font-size: 12px;
+      background-color: #EEE;
+      height: 400px;
+      width: 160px;
+      margin-top: -750px;
+      padding: 8px;
+      box-shadow: 2px 2px 4px 2px #bbb;
+    }
+    #title {
+      float: left;
+      font-size: 14px;
+      font-weight: bold;
+      width: 200px;
+      margin-left: 8px;
+      overflow: hidden;
     }
     #avatar {
       float: left;
       height: 32px;
       width: 32px;
     }
-    #avatar img {
+    #avatar > img {
       height: 32px;
       width: 32px;
     }
     .page {
-      float: left;
-      background-color: #F0F3BD;
+      /*float: left;*/
+      /*background-color: #F0F3BD;*/
       width: 100%;
       height: 100%;
     }
-    .layout1 {
-      background-color: red;
+    .pagelayout {
+        position: absolute;
+        z-index: 1;
+        top: 40px;
+        left: 40px;
     }
-    .layout2 {
-      background-color: green;
+    .column {
+      float: left;
+      font-weight: bold;
+      color: #444;
+      border-right: 2px solid grey;
+      width: 320px;
+      height: 1000px;
+      margin: 4px;
+    }
+    .rect {
+      float: left;
+      font-weight: bold;
+      color: #444;
+      background-color: #EEE;
+      width: 550px;
+      height: 500px;
+      margin: 4px;
+      margin-right: 80px;
     }
     .card {
       position: absolute;
+      z-index: 2;
       width: 130px;
       height: 120px;
       display: block;
@@ -88,7 +136,7 @@
       top: -130px;
       width: 32px;
     }
-    .card .tags div {
+    .card .tags > div {
       float: left;
       font-size: 12px;
       color: #333;
@@ -109,7 +157,7 @@
       float: left;
 
     }
-    .icon img {
+    .icon > img {
       width: 48px;
       height: 48px;
     }
@@ -236,6 +284,10 @@
           console.log("Trying to set text" + msg.card.id);
           card = document.getElementById(msg.card.id);
           card.children[1].innerText = msg.card.text;
+
+          // Hack, if text is completely empty, hide the card
+          if(msg.card.text == "")
+            card.style.visibility = "hidden";
           break;
 
         case "VOTE":
@@ -246,6 +298,7 @@
         case "LOGIN":
           user = msg.user;
           board = msg.board;
+          updateBoard(msg.board.name, msg.board.layout);
 
           setCookie("uuid", user.id);
           ava = document.getElementById("avatar");
@@ -256,9 +309,13 @@
 
         case "BOARD":
           board = msg.board;
-          // Update actual layout
+          document.getElementById("title").innerText = msg.board.name;
           page = document.getElementById("pg");
           page.setAttribute("class", "page layout" + board.layout);
+          break;
+
+        case "CLEAN":
+          document.getElementById("pg").innerHTML = "";
           break;
       }
     });
@@ -273,16 +330,42 @@
     function cardText(e) {
       e = e || window.event;
       text = e.target.innerText;
+      if(text == "")
+        e.target.parentNode.style.visibility = "hidden";
       const msg = {type:'TEXT', bid: user.bid, id: e.target.parentNode.id, text: text};
       socket.emit('message', JSON.stringify(msg));
     }
 
-    function updateBoard(bid, name = null, layout = null) {
+    function updateBoard(name = null, layout = null) {
       // Update current board or switch
       if(name)
         board.name = name;
-      if(layout)
+      if(layout) {
         board.layout = layout;
+        lH = document.getElementById("pglayout");
+
+        switch(layout) {
+          case "LEANCOFFEE":
+            lH.style.width = "1020px";
+            lH.style.backgroundImage = "url('img/bgcoffee.png')";
+            lH.innerHTML = "<div class='column'>To discuss</div> \
+              <div class='column'>Discussing</div> \
+              <div class='column'>Discussed</div>";
+            break;
+          case "TEAMCANVASB":
+            lH.style.width = "1420px";
+            lH.style.backgroundImage = "url('')";
+            lH.innerHTML = "<div class='rect'>Goals</div> \
+            <div class='rect' style='text-align:right'>Roles &amp; Skills</div> \
+            <div class='rect'>Values</div> \
+            <div class='rect' style='text-align:right'>Rules &amp; Activities</div> \
+            <div class='rect' style='position:relative;top:-700px;left:300px;background-color: #FACEC4'>Purpose</div>";
+            break;
+
+          default:
+            lH.innerHTML = "";
+        }
+      }
 
       const msg = {type:'BOARD', board: board};
       socket.emit('message', JSON.stringify(msg));
@@ -303,7 +386,11 @@
 
     function addVote(id, num) {
       const msg = {type:'VOTE', bid: user.bid, id: id, owner: user.uuid, num: num};
+      socket.emit('message', JSON.stringify(msg));
+    }
 
+    function cleanBoard() {
+      const msg = {type:'CLEAN', bid: user.bid};
       socket.emit('message', JSON.stringify(msg));
     }
 
@@ -329,6 +416,16 @@
       icons.appendChild(createIcon(idx));
     }
 
+    function toggleSettings() {
+      s = document.getElementById("settings");
+      if(s.style.visibility == "hidden") {
+        s.style.visibility = "";
+      }
+      else {
+        s.style.visibility = "hidden";
+      }
+    }
+
     window.addEventListener('load', function() {
       var urlParams = new URLSearchParams(window.location.search);
 
@@ -346,13 +443,29 @@
     });
   </script>
 
-  <div class="toolbar"><div id="avatar"></div>
-  | <a href="#" onclick="void(addCard());">Add card</a>
-  | Layout <a href="#" onclick="void(updateBoard(null,null,0));">0</a> <a href="#" onclick="void(updateBoard(null,null,1));">1</a>
+  <div class="toolbar">
+    <div id="avatar"></div>
+    <div id="title" contenteditable="true" onblur="updateBoard(this.innerText,null);">&nbsp;</div>
+    <div style="margin: 0 auto;background-color:#DDD" onclick="void(addCard());"><img src="img/add.png" class="icm"/> Add card</div>
+    <div style="float:right;margin-top:-32px;background-color:#DDD" onclick="void(toggleSettings());"><img src="img/settings.png" class="icm"/> Settings</div>
   </div>
   <div id="pg" class="page">&nbsp;</div>
+  <div id="pglayout" class="pagelayout">
+    &nbsp;
+  </div>
   <div id="hmm">
     <div class="icon">&nbsp;</div>
+  </div>
+  <div id="settings" style="visibility:hidden">
+      Choose layout <br/>
+      <a href="javascript:void(updateBoard(null,'EMPTY'));">Empty board</a><br/>
+      <a href="javascript:void(updateBoard(null,'LEANCOFFEE'));">Lean coffe</a><br/>
+      <a href="javascript:void(updateBoard(null,'TEAMCANVASB'));">Team Canvas (Basic)</a><br/>
+      <!--a href="#">Team Canvas (Advanced)</a><br/-->
+      <br/><br/>
+      Other options<br/>
+      <!--a href="#">Reset all votes</a><br/-->
+      <a href="javascript:void((confirm('Delete all notes on the board?') ? cleanBoard() : ''));">Clean the board</a> (<span style="color:red">!!</span>)<br/>
   </div>
 </body>
 </html>
