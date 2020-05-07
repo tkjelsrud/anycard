@@ -26,7 +26,7 @@ function getOrCreateBoard(bid) {
   if(bid in global.boards) {
     return global.boards[bid];
   }
-  global.boards[bid] = {bid: bid, nextCardId: 0, cards: []}
+  global.boards[bid] = {bid: bid, name: "Unnamed board", layout: 0, nextCardId: 0, cards: []}
   return global.boards[bid];
 }
 
@@ -66,12 +66,13 @@ function onConnection(socket){
           global.users[uuid] = user;
         }
 
-        socket.join(msg.bid);
+        board = getOrCreateBoard(user.bid);
+        socket.join(user.bid);
 
-        socket.emit("message", JSON.stringify({type: "LOGIN", user: user}));
+        socket.emit("message", JSON.stringify({type: "LOGIN", user: user, board: board}));
 
         // Transmit all the cards to this person
-        board = getOrCreateBoard(user.bid);
+        // Don't actually need - its in the login board already
         for(i = 0; i < board.cards.length; i++) {
           card = board.cards[i];
           socket.emit("message", JSON.stringify({type: "NEWCARD", card: card}));
@@ -82,10 +83,12 @@ function onConnection(socket){
       case "BOARD":
         // TODO: think twice, avoid making too many container layers. Maybe pages is enough?
         // Join or create board
-        uid = ("uuid" in msg ? msg.uuid : createUuid());
-        user.bid = uid;
-        board = getOrCreateBoard(uid);
-        console.log("board");
+        //uid = ("uuid" in msg ? msg.uuid : createUuid());
+        //user.bid = uid;
+        user.bid = msg.board.id;
+        board = getOrCreateBoard(msg.board.id);
+        board.name = msg.board.name;
+        board.layout = msg.board.layout;
         socket.emit("message", JSON.stringify({type: "BOARD", board: board}));
         break;
 

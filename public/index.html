@@ -26,6 +26,13 @@
       float: left;
       background-color: #F0F3BD;
       width: 100%;
+      height: 100%;
+    }
+    .layout1 {
+      background-color: red;
+    }
+    .layout2 {
+      background-color: green;
     }
     .card {
       position: absolute;
@@ -34,7 +41,8 @@
       display: block;
       background-color: #FCBF49;
       border: 1px solid grey;
-      box-shadow: 4px 4px 4px #CCCCCC;
+      border-radius: 5px;
+      box-shadow: 2px 2px 4px 2px #bbb;
       vertical-align: middle;
     }
     .card .head {
@@ -87,15 +95,16 @@
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script type="text/javascript">
     var user = {uuid: 0, bid: 0, color: 1, icon: 1, unloaded: true};
+    var board = {unloaded: true};
 
     function getCookie(name) {
       var value = "; " + document.cookie;
       var parts = value.split("; " + name + "=");
       if (parts.length == 2) return parts.pop().split(";").shift();
     }
-    var socket = io('http://172.105.95.145:8081');
+    //var socket = io('http://172.105.95.145:8081');
     //var io = require('socket.io-client');
-    //var socket = io('http://localhost:8081');
+    var socket = io('http://localhost:8081');
 
     function login(uuid, bid) {
       // Process data and create board
@@ -177,15 +186,25 @@
           console.log("Trying to set text" + msg.card.id);
           card = document.getElementById(msg.card.id);
           card.children[1].innerText = msg.card.text;
+          break;
 
         case "LOGIN":
           user = msg.user;
+          board = msg.board;
+
           console.log(user);
           ava = document.getElementById("avatar");
           ava.style.backgroundColor = createColor(user.color);
           img = createIcon(user.icon);
           ava.appendChild(img);
 
+          break;
+
+        case "BOARD":
+          board = msg.board;
+          // Update actual layout
+          page = document.getElementById("pg");
+          page.setAttribute("class", "page layout" + board.layout);
           break;
       }
     });
@@ -201,6 +220,17 @@
       e = e || window.event;
       text = e.target.innerText;
       const msg = {type:'TEXT', bid: user.bid, id: e.target.parentNode.id, text: text};
+      socket.emit('message', JSON.stringify(msg));
+    }
+
+    function updateBoard(bid, name = null, layout = null) {
+      // Update current board or switch
+      if(name)
+        board.name = name;
+      if(layout)
+        board.layout = layout;
+
+      const msg = {type:'BOARD', board: board};
       socket.emit('message', JSON.stringify(msg));
     }
 
@@ -240,8 +270,11 @@
     });
   </script>
 
-  <div class="toolbar"><div id="avatar"></div> | <a href="#" onclick="void(addCard());">Add card</a></div>
-  <div class="page">&nbsp;</div>
+  <div class="toolbar"><div id="avatar"></div>
+  | <a href="#" onclick="void(addCard());">Add card</a>
+  | Layout <a href="#" onclick="void(updateBoard(null,null,0));">0</a> <a href="#" onclick="void(updateBoard(null,null,1));">1</a>
+  </div>
+  <div id="pg" class="page">&nbsp;</div>
   <div id="hmm">
     <div class="icon">&nbsp;</div>
   </div>
