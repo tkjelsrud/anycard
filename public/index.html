@@ -309,7 +309,7 @@
 
         case "BOARD":
           board = msg.board;
-          document.getElementById("title").innerText = msg.board.name;
+          updateBoard(msg.board.name, msg.board.layout);
           page = document.getElementById("pg");
           page.setAttribute("class", "page layout" + board.layout);
           break;
@@ -359,7 +359,7 @@
             <div class='rect' style='text-align:right'>Roles &amp; Skills</div> \
             <div class='rect'>Values</div> \
             <div class='rect' style='text-align:right'>Rules &amp; Activities</div> \
-            <div class='rect' style='position:relative;top:-700px;left:300px;background-color: #FACEC4'>Purpose</div>";
+            <div class='rect' style='position:relative;border-radius: 50px;top:-700px;left:300px;background-color:#FACEC4;text-align:center'>Purpose</div>";
             break;
 
           default:
