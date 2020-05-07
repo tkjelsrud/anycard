@@ -349,33 +349,36 @@
     }
 
     function updateBoardLayout(name = null, layout = null) {
-      if(name)
+      if(name) {
         board.name = name;
-      if(layout)
+        document.getElementById("title").innerText = name;
+      }
+      if(layout) {
         board.layout = layout;
 
-      lH = document.getElementById("pglayout");
-      // Update current board or switch
-      switch(board.layout) {
-        case "LEANCOFFEE":
-          lH.style.width = "1020px";
-          lH.style.backgroundImage = "url('img/bgcoffee.png')";
-          lH.innerHTML = "<div class='column'>To discuss</div> \
-            <div class='column'>Discussing</div> \
-            <div class='column'>Discussed</div>";
-          break;
-        case "TEAMCANVASB":
-          lH.style.width = "1420px";
-          lH.style.backgroundImage = "url('')";
-          lH.innerHTML = "<div class='rect'>Goals</div> \
-          <div class='rect' style='text-align:right'>Roles &amp; Skills</div> \
-          <div class='rect'>Values</div> \
-          <div class='rect' style='text-align:right'>Rules &amp; Activities</div> \
-          <div class='rect' style='position:relative;border-radius: 50px;top:-700px;left:300px;background-color:#FACEC4;text-align:center'>Purpose</div>";
-          break;
+        lH = document.getElementById("pglayout");
+        // Update current board or switch
+        switch(board.layout) {
+          case "LEANCOFFEE":
+            lH.style.width = "1020px";
+            lH.style.backgroundImage = "url('img/bgcoffee.png')";
+            lH.innerHTML = "<div class='column'>To discuss</div> \
+              <div class='column'>Discussing</div> \
+              <div class='column'>Discussed</div>";
+            break;
+          case "TEAMCANVASB":
+            lH.style.width = "1420px";
+            lH.style.backgroundImage = "url('')";
+            lH.innerHTML = "<div class='rect'>Goals</div> \
+            <div class='rect' style='text-align:right'>Roles &amp; Skills</div> \
+            <div class='rect'>Values</div> \
+            <div class='rect' style='text-align:right'>Rules &amp; Activities</div> \
+            <div class='rect' style='position:relative;border-radius: 50px;top:-700px;left:300px;background-color:#FACEC4;text-align:center'>Purpose</div>";
+            break;
 
-        default:
-          lH.innerHTML = "";
+          default:
+            lH.innerHTML = "";
+        }
       }
     }
 
