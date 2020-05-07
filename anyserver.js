@@ -46,10 +46,7 @@ function getCard(bid, cid) {
 function onConnection(socket){
   user = {unset: true};
   board = {cards: [], cid: 0};
-  //console.log("Hi" + global.cnt);
-
-  //const user = {name: "random123"};
-  //socket.on('message', (data) => socket.broadcast.emit('message', data));
+  
   socket.on("message", (incoming) => {
     msg = JSON.parse(incoming);
     console.log(msg);
@@ -66,7 +63,7 @@ function onConnection(socket){
           user = {bid: msg.bid, uuid: uuid, color: Math.floor(Math.random() * 9), icon: Math.floor(Math.random() * 25)};
           global.users[uuid] = user;
         }
-        //console.log(user);
+
         board = getOrCreateBoard(user.bid);
 
         socket.join(user.bid);
@@ -83,18 +80,13 @@ function onConnection(socket){
         break;
 
       case "BOARD":
-        // TODO: think twice, avoid making too many container layers. Maybe pages is enough?
-        // Join or create board
-        //uid = ("uuid" in msg ? msg.uuid : createUuid());
-        //user.bid = uid;
         user.bid = msg.board.bid;
         board = getOrCreateBoard(msg.board.bid);
         board.name = msg.board.name;
         board.layout = msg.board.layout;
 
-        //global.boards[board.bid] = board; // Needed?
-
         socket.emit("message", JSON.stringify({type: "BOARD", board: board}));
+        socket.broadcast.to(msg.board.bid).emit("message", JSON.stringify({type: "BOARD", board: board}));
         break;
 
       case "NEWCARD":
@@ -102,15 +94,12 @@ function onConnection(socket){
         board.nextCardId++;
         card = {id: board.nextCardId, bid: msg.bid, text: "Text here...", owner: msg.owner, x: 200, y: 200, icon: msg.icon, color: msg.color, votes: {}};
         board.cards.push(card);
-        //console.log(global.boards);
-        socket.emit("message", JSON.stringify({type: "NEWCARD", card: card}));
 
-        //TODO: Need to broadcast to board only
+        socket.emit("message", JSON.stringify({type: "NEWCARD", card: card}));
         socket.broadcast.to(msg.bid).emit("message", JSON.stringify({type: "NEWCARD", card: card}));
         break;
 
       case "MOVE":
-        // Should probably check out of bounds values
         card = getCard(msg.bid, msg.id);
         if(card) {
           card.x = (msg.x >= 0 ? msg.x : 0);
@@ -155,21 +144,6 @@ function onConnection(socket){
     }
   });
 }
-/*
-io.on("new", function(data) {
-    //
-    console.log("NEW CARD");
-    //emitsForSomeMessage.push(data);
-    socket.on('message', (data) => socket.broadcast.emit('message', data));
-});
-
-app.get('/n', (req, res) => {
-    res.send('Hello shitface' + global.cnt);
-});
-
-app.post('/n', (req, res) => {
-    res.send('Hello shitface' + global.cnt);
-});*/
 
 io.on('connection', onConnection);
 
