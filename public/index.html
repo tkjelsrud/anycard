@@ -342,7 +342,7 @@
       if(layout)
         board.layout = layout;
 
-      updateBoardLayout();
+      updateBoardLayout(name, layout);
 
       const msg = {type:'BOARD', board: board};
       socket.emit('message', JSON.stringify(msg));
