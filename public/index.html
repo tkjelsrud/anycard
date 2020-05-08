@@ -361,6 +361,13 @@
         lH = document.getElementById("pglayout");
         // Update current board or switch
         switch(board.layout) {
+          case "RETROA":
+            lH.style.width = "1020px";
+            lH.style.backgroundImage = "url('')";
+            lH.innerHTML = "<div class='column' style='background-color:#FAFC94'>Continue doing</div> \
+              <div class='column' style='background-color:#E1FAC4'>Start doing</div> \
+              <div class='column' style='background-color:#FCBD94'>Stop doing</div>";
+            break;
           case "LEANCOFFEE":
             lH.style.width = "1020px";
             lH.style.backgroundImage = "url('img/bgcoffee.png')";
@@ -479,6 +486,7 @@
       Choose layout <br/>
       <a href="javascript:void(updateBoard(null,'EMPTY'));">Empty board</a><br/>
       <a href="javascript:void(updateBoard(null,'LEANCOFFEE'));">Lean coffe</a><br/>
+      <a href="javascript:void(updateBoard(null,'RETROA'));">Retro Cont/start/stop</a><br/>
       <a href="javascript:void(updateBoard(null,'TEAMCANVASB'));">Team Canvas (Basic)</a><br/>
       <!--a href="#">Team Canvas (Advanced)</a><br/-->
       <br/><br/>
