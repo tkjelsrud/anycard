@@ -10,24 +10,37 @@
       background-color: #F0E6EF;
       padding: 2px;
       width: 100%;
-      height: 32px;
+      height: 24px;
       border-bottom: 1px solid grey;
+      box-shadow: 0px 2px 4px 0px #bbb;
     }
     .toolbar > div {
       font-size: 12px;
       color: #333;
       width: 100px;
-      height: 32px;
+      height: 24px;
       top: 0px;
       vertical-align: middle;
     }
     #settings {
       float:right;
       position: relative;
-      z-index: 3;
+      z-index: 5;
       font-size: 12px;
       background-color: #EEE;
       height: 400px;
+      width: 160px;
+      margin-top: -750px;
+      padding: 8px;
+      box-shadow: 2px 2px 4px 2px #bbb;
+    }
+    #about {
+      float:right;
+      position: relative;
+      z-index: 4;
+      font-size: 12px;
+      background-color: #EEE;
+      height: 460px;
       width: 160px;
       margin-top: -750px;
       padding: 8px;
@@ -43,12 +56,12 @@
     }
     #avatar {
       float: left;
-      height: 32px;
-      width: 32px;
+      height: 24px;
+      width: 24px;
     }
     #avatar > img {
-      height: 32px;
-      width: 32px;
+      height: 24px;
+      width: 24px;
     }
     .page {
       /*float: left;*/
@@ -90,7 +103,7 @@
       background-color: #FCBF49;
       border: 1px solid grey;
       border-radius: 5px;
-      box-shadow: 2px 2px 4px 2px #bbb;
+      box-shadow: 2px 2px 2px 2px #bbb;
       vertical-align: middle;
     }
     .card .head {
@@ -144,6 +157,10 @@
       width: 30px;
       box-shadow: 1px 1px 2px 1px #bbb;
     }
+    .ic {
+      width: 24px;
+      height: 24px;
+    }
     .ics {
       width: 16px;
       height: 16px;
@@ -164,24 +181,10 @@
   </style>
 </head>
 <body>
-  <!-- ... other HTML ... -->
-
-  <!-- IDEAS
-
-  colorize icons pr participant using
-
-  filter: contrast(100) saturate(1000) hue-rotate(270deg)
-
-  -->
-
-  <!-- Load React. -->
   <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
   <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
   <script src="js/util.js"></script>
-  <!-- Load our React component. -->
-  <!--script src="js/card.js"></script>
-  <script src="js/dice.js"></script -->
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script type="text/javascript">
     var user = {uuid: 0, bid: 0, color: 1, icon: 1, unloaded: true};
@@ -238,7 +241,6 @@
 
       divO = document.createElement("div");
       divO.className = "options";
-      //divO.innerHTML = "<img class=\"ics\" src=\"img/star0.png\" /><img class=\"ics\" src=\"img/star0.png\" /><img class=\"ics\" src=\"img/star0.png\" />";
       divO.innerHTML = "<div style=\"float:left\">Vote</div><div class=\"vadd\" onClick=\"addVote(" + card.id + ",1);\">+</div>  <div class=\"vrem\" onClick=\"addVote(" + card.id + ",-1);\">-</div>"
 
       divV = document.createElement("div");
@@ -384,15 +386,9 @@
 
     function addCard() {
       // I don't add a card myself, the server tells me a new card appeared
-      //
       const msg = {type:'NEWCARD', bid: user.bid, owner: user.uuid, color: user.color, icon: user.icon};
 
       socket.emit('message', JSON.stringify(msg));
-      /*
-      var node = document.createElement("div");
-      node.className = "card";
-      node.id = Math.random();
-      document.querySelector('#card_container').appendChild(node);*/
     }
 
     function addVote(id, num) {
@@ -437,6 +433,16 @@
       }
     }
 
+    function toggleAbout() {
+      s = document.getElementById("about");
+      if(s.style.visibility == "hidden") {
+        s.style.visibility = "";
+      }
+      else {
+        s.style.visibility = "hidden";
+      }
+    }
+
     window.addEventListener('load', function() {
       var urlParams = new URLSearchParams(window.location.search);
 
@@ -457,8 +463,10 @@
   <div class="toolbar">
     <div id="avatar"></div>
     <div id="title" contenteditable="true" onblur="updateBoard(this.innerText,null);">&nbsp;</div>
-    <div style="margin: 0 auto;background-color:#DDD" onclick="void(addCard());"><img src="img/add.png" class="icm"/> Add card</div>
-    <div style="float:right;margin-top:-32px;background-color:#DDD" onclick="void(toggleSettings());"><img src="img/settings.png" class="icm"/> Settings</div>
+    <div style="margin: 0 auto;background-color:#DDD" onclick="void(addCard());"><img src="img/add.png" class="ic"/> Add card</div>
+    <div style="float:right;margin-top:-24px;background-color:#DDD" onclick="void(toggleSettings());"><img src="img/settings.png" class="ic"/> Settings</div>
+    <div style="float:right;margin-top:-24px;margin-right:100px;background-color:#DDD" onclick="void(toggleAbout());"><img src="img/about.png" class="ic"/> About</div>
+
   </div>
   <div id="pg" class="page">&nbsp;</div>
   <div id="pglayout" class="pagelayout">
@@ -477,6 +485,15 @@
       Other options<br/>
       <!--a href="#">Reset all votes</a><br/-->
       <a href="javascript:void((confirm('Delete all notes on the board?') ? cleanBoard() : ''));">Clean the board</a> (<span style="color:red">!!</span>)<br/>
+  </div>
+  <div id="about" style="visibility:hidden">
+    <p><strong>foodiboard v1.0</strong> a node.js simple board based on web-sockets</p>
+    <p><strong>Disclaimer/security:</strong> keep it clean - do not post any sensistive information. There is no database involved, but server may log events. Boards and notes expire after a time limit ensuring nothing is stored.
+    </p>
+    <p><strong>Create a new board?</strong> Add your own ID or name in the URL after ?bid=</p>
+    <p><Strong>Hidden functions:</strong> delete a note? just delete all its text and de-select</p>
+    <p><strong>Open source</strong> Steal, get inspiration, modify or better yet... improve the board? <a href="https://github.com/tkjelsrud/anycard" target="_blank">https://github.com/ tkjelsrud/anycard</a>
+    </p>
   </div>
 </body>
 </html>
