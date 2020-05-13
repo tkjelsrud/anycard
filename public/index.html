@@ -209,7 +209,7 @@
       return c[index];
     }
 
-    function createIcon(index, classes="") {
+    function createIcon(index, classes) {
       img = document.createElement("img");
       img.src = "img/food" + index + ".png";
       img.className = classes;
@@ -305,7 +305,7 @@
           setCookie("uuid", user.id);
           ava = document.getElementById("avatar");
           ava.style.backgroundColor = createColor(user.color);
-          img = createIcon(user.icon);
+          img = createIcon(user.icon, "");
           ava.appendChild(img);
           break;
 
@@ -338,7 +338,7 @@
       socket.emit('message', JSON.stringify(msg));
     }
 
-    function updateBoard(name = null, layout = null) {
+    function updateBoard(name, layout) {
       if(name)
         board.name = name;
       if(layout)
@@ -350,7 +350,7 @@
       socket.emit('message', JSON.stringify(msg));
     }
 
-    function updateBoardLayout(name = null, layout = null) {
+    function updateBoardLayout(name, layout) {
       if(name) {
         board.name = name;
         document.getElementById("title").innerText = name;
